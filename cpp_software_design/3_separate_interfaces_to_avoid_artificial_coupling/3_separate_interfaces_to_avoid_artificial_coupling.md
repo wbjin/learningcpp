@@ -6,7 +6,7 @@ In the following abstract document class, the Document class has interfaces for 
 ![alt text](../2_design_for_change/abstract_document_class.png)
 Any deriving classes of document needs to implement both interfaces (or fake implement them) even if you might only need one of them. Furthermore, if you add another function to the Document class, now everything that dervies from it needs to implement it. 
 
-The **Interface Segregation Principle** (ISP) form SOLI says
+The **Interface Segregation Principle** (ISP) form SOLID says
 
 > Clients should not be forced to depend on interfaces they do not use.
 
