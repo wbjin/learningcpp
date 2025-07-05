@@ -1,4 +1,4 @@
-# Cracked++
+# Learning CPP
 
 Lessons learned from a collection of C++ resources. This repository contains content from
 - learncpp.com
