@@ -5,6 +5,7 @@
  *
  * */
 
+#include <array>
 #include <iostream>
 
 using std::cout, std::endl;
