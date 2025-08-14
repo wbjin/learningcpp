@@ -59,3 +59,5 @@ struct Event
 ...
 std::priority_queue<Event> events;
 ``` 
+
+For priority queue of pairs, it defaults to comparing the first pair
