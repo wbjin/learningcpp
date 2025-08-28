@@ -60,7 +60,6 @@ number but it treats the data as bytes instead of a collection of bytes). If
 the MSS is 1000 bytes, the first segment will contain the sequence number 0.
 The second will be 1000, the third will be 2000 and so on.
 
-
 Because TCP is a duplex service, a host can be both receiving and sending data
 on the same connection. The acknowledgement number that is contained in the
 segment from host A to host B contains the sequence number of the next byte
@@ -78,6 +77,22 @@ in the network from a previous terminated connection is not mistaken for a
 segment in the current connetion. In this way, ACKs are piggybacked to data
 being sent between hosts. If a host needs to only send an ACK, the data section
 will just be left empty.
+
+TCP Options:
+- Maximum Segment Size: The maximum amount of data to be carried in the TCP
+data segment. It is established by the client and server during the SYN and the
+SYN/ACK phase. 4 bytes.
+- Window Scaling: Tells how many bits to left shift the advertised receive
+window size. This value can range from 0 to 14. This is used for highbandwidth
+links where it has a capacity greater than 65535 which is the biggest window
+you can advertise with the receive window header. 3 bytes.
+- Selective ACKs: Option to let receiver include selective acknowledgements in
+the options field. 2 bytes.
+- Timestamps: Used for RTT measurement where sending time and receiving times
+are set in the option each 4 bytes long, the sender sets the initial TS value
+and the receiver copies that into the TS Echo Reply. 10 bytes.
+- Nagle's Algorithm: Reduce the number of small packets by coallescing small
+packets together instead of sending them separately.
 
 ### Round trip time estimation and timeout
 TCP maintains a `SampleRTT` state that denotes a segment's amount of time

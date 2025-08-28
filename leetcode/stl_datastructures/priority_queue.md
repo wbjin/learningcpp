@@ -30,6 +30,11 @@ const& T top() const; // return reference
 ```
 - Popping top value: `void pop()`
 
+## Sorting order
+By default, the priority queue is a max heap using the `std::less<T>`
+comparator. In order to make a min heap, you can use `std::greater<T>`,
+instead.
+
 ## Other stuff
 
 You can define a custom comapartor,
