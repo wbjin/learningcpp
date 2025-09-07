@@ -75,7 +75,7 @@ communication between an operator and a process. Processor can display things
 on the output printer and the operator can converse with a processor by
 identifying which processor they want to communicate with. Hence, the message
 interpreter process is needed to interpret this process identification.
-- Level 3: Sequential processes associated with buffering and unbuffering of
-input and output streams. Provides the abstraction to talk to the peripherals
-as logical communication units. 
+- Level 3: I/O devices managed by equential processes associated with buffering
+and unbuffering of input and output streams. Provides the abstraction to talk
+to the peripherals as logical communication units. 
 - Level 4: User program

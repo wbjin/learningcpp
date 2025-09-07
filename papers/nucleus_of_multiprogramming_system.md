@@ -77,5 +77,5 @@ The system starts with nucleus and a basic operating system process which can
 create child processes. These child processes can also create child processes.
 Every time a parent creates a child process, it is essentially the operating
 system for that child process, scheduling and swapping between the children.
-The processor is scheduled in a round robin fashion among all processes and any
-process is able to communicate with any other process.
+The processor is scheduled in a round robin fashion among all active processes
+and any process is able to communicate with any other process.
