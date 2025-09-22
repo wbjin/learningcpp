@@ -1,5 +1,5 @@
 /*
- * Compile with gcc poll.c -o poll
+ * Compile with gcc select.c -o select
  * */
 #include <arpa/inet.h>
 #include <stdlib.h>
