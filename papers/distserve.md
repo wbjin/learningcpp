@@ -7,125 +7,255 @@ DistServe proposes disaggregating these phases to separate GPUs and optimizing
 them individually for maximizing the number of requests served within some time.
 
 ## Introduction
-LLM inference has a prefill and decoding stage that have different optimization
-targets. Time to first token is important for prefill because for applications
-like chatbots, users don't want to wait a long time to see results of their
-prompt. Time per output token is important for the entire prompt to finish
-quickly. Existing systems colocate both stages on the same GPU making it harder
-to optimize for both simultaneously. DistServe disaggregates prefill and
-decoding to separate GPUs which enables independent reosurce allocation and
-parallelism for each phase and optimizations for TTFT and TPOT.
+LLM inference is done in two phases. The prefill phase processes a user's input
+prompt in one step. This is followed by the decode phase output tokens are
+generate in multiple steps. This is the key different in LLM inference
+workloads. An LLM servie measured with two key metrics: time to first token
+(TTFT) which is how long the prefill phase takes and time per output token
+(TPOT) which is the average time taken to generate an output token. Services
+like chatbots have different priorities depending on the nature of the request.
+For short, real time requests, you want low TTPT for responsiveness and a TPOT
+that matches the human reading speed. For tasks like summarization, low TPOT is
+ideal for faster output generation. Thus an LLM inference system need to
+balance these requirements and maiximize per-GPU goodput which is defined as
+the maximum request rate that can be served adhering to the SLO goal for each
+GPU used.
+
+The prefill and decoding phases share the same LLM weights and working memory
+so they are typically processed on the same GPU to maximize overall system
+throughput. However, to meet latency requirements, these systems that colocate
+phases must overprovision compute. Simply separating the two phases in
+different GPUs would lead to much lower TTFT and TPOT. This is because the two
+phases have drastically different computation characteristics and latency
+requirements. Doing both prefill and decode in the same batch increases both
+TTFT and TPOT. Scheduling them separately in different batches doesn't solve
+the issue as well because of queueing delays where prefills have to wait for
+decodes and decodes have to wait for prefills. The two also have diffeent
+latency requirements and have preference for different forms of parallelism.
+Colocating couples their resource allocation and prevents the implementation of
+parallelism more suited to each phase.
+
+To overcome these challenges, the authors propose to separate prefill and
+decoding to separate GPUs. This eliminates the interference between prefill and
+decode and it also allows each phase to scale independently with tailored
+optimizations and parallelism strategies. They build DistServe, an inference
+system that optimizes for goodput that can individually scale the prefill and
+decode phases but also scale the entire sytem to meet user required traffice.
+
+The novel ideas from this paper are:
+- Identifying the problems of prefill-decoding interference  and proposing to
+disaggregate the two phases
+- Designing a placement algorithm to choose a schema that optimizes for
+goodput. Essentially designing the strategy to maximize prefill and decodee
+without too much overhead
+- Evaluate DistServe
 
 ## Background and Motivation
-LLM inference serving has several Serivce Level Objectives, these being TTFT
-for responsiveness and TPOT for smoothness of output. The objective is to meet
-these requirements while maximizing the number of requests per second. LLM
-inference has two phases, prefill and decoding. Prefill is compute bound while
-decoding is memory bound. Both phases need a KV Cache that occupies GPU memory
-which means these different phases have resource contention. The current
-optimization technique is to have model parallelism with intra-op where
-operations like matmul is split across GPUs and inter-op where model layers are
-across multiple GPUs. This causes problems where decoding is delayed by long
-running prefill jobs. There are scheduling conflicts where prioritizing one
-harms the other. Often times, in order to meet the TTFT and TPOT needs, extra
-hardware resources are needed. Disaggregating these phases would allow
-optimizations specific to each phase.
+### LLM Inference
+LLM inference involves computing hidden representation for each token in a
+sequence. These hidden representations can be computed in parallel for a given
+sequenece. There is also substantial I/O demand as LLM weights and intermediate
+activations need to be moved from memory to SRAM. The prefill phase can be
+computed in one step because all of the tokens in the initial sequence is given
+by the input. However, the decode stage must happen one output token at a time.
+This means that not breif prefill phases are typically compute-bound while
+decode phases even though they process one output token at a time still incur
+the same I/O and is thus memory bound. Both phases generate intermediate states
+known as KV caches that is needed for later decoding steps. The shared use of
+LLM weights and KV caches is why existing systems prefer to colocate prefill
+and decode.
 
-## Tradeoff and Analysis
+### LLM Serving Optimization
+Existing serving systems utilize continuous batching. This is where new
+prefills and existing decodes are batched together. This boosts GPU utilization
+and maximizes overall system throughput which is all tokens per second.
+However, batching prefill and decoding invariantly leads to tradeoffs between
+TTFT and TPOT which means we don't meet our SLOs. Existing systems also use
+model parallelism with intra and inter-operator parallelism (TP and PP). Intra
+is where computationally expensive operators are split across multiple GPUs
+accelerating computation but causing substatntial communication. It can reduce
+latency for TTFT but requires high bandwidth communication like NVLINK. Inter
+is where LLM layers are organized into stages running on different GPUs. This
+forms a pipeline where while one GPU is computing for one layer, another layer
+GPU is computing for another layer. This increases latnecy due to inter stage
+communication but it linearly scales the system's rate capacity with each added
+GPU. 
+
+### Problems and Optimizations
+The problems with existing systems is that adding even a single prefil job in a
+batch of decodes significantly reduces both. One attempt at solving this is
+chunked prefills where long prefills are split into smaller chunks that
+piggyback onto decode jobs. While this does mitigate the problem of slower
+decodes, it doesn't solve the fundamental issue and it also introduces
+additional overhead for prefill jobs as the KV cache f the previous chunks have
+to be loaded when computing each subsequent chunk.
+
+Simply scheduling prefills and decodes in different batches also doesn't solve
+the issue because decoding jobs end up facing longer queueing delays as it is
+dependent on prefill jobs. Additionally jobs with just decodes often lead to
+GPU underutilization. Prioritizing either still ends up adversely affecting the
+other.
+
+Colocating prefill and decode also lead to the coupling of parallelism
+strategies and resource coupling. Prefill typically benefit from TP while
+decode usually benefits from PP and a batch size that is different from the
+optimal batch size for prefill jobs.
+
+### Opportunities
+These challenges present a set of opportunities for improvement. By
+disaggregating infernece to prefill and decode instances, you can decouple
+resource and parallelism strategies while also scaling each phase differently.
+For example, because decode usually has less GPU utilization, you can have more
+prefill instances than decode instances to make sure the decode instances stay
+fully utilized.
+
+## Tradeoff Analysis
+
+### Analysis for Prefill Instance
+Prefill phase is compute intensive and can quickly reach a GPU's compute
+capabilities without much batching. After reaching the GPU's compute, any more
+requests to the batch only increases the processing time for the batch. The
+authors denote a prompts critical input length threshold as $L_m$ where beyond
+this point, batching only increases the prefill's latency and batching should
+only be considered if a prompt is less than $L_m$.
+
 In order to understand the benefits of separating the two phases, the paper
 analyzes each phase and their characteristics.
 
-Prefill phase: The prefill phase processes the entire prompt in parallel where
-this is espeically compute intensive for long prompts with this length being
-denoted as Lm. For lengths longer than this, batching does not help and is only
-useful for shorter prompts. In practice, prefill batches are small. The
-different parallelism strategies will thus have different benefits. With
-intra-op parallelism where a single computation stage is done across multiple
-GPUs, TTFT is lower when loads are low but once there are more requests, it
-suffers from queuing delay. For intra-op parallelism where model layers are
-sharded across GPUs, each request is slower but there is higher throughput.
+The authors also analyze different parallelism strategies with prefill. The
+idea is that different parallelism strategies are effective for different
+situations where if your service has many users, PP allows lower queuing delay
+and is more scalable. If you have less users or if you have stricter TTFT
+requirements, TP is better as it reduces execution time more than PP.
 
-Decode phase: The decode phase processes one output token at a time and is thus
-memory bound because the intermediary results must be stored in the KV cache
-which resides in GPU memory. Unless requests are batched heavily, GPU
-utilization is low. Larger decoding batch sizes means better utilization but
-its hard to increase batch size with traditional serving because prefill
-benefits from small batch sizes. By separating decoding to a separate GPU and
-having large batch sizes, one decoding instance can handle results from
-multiple prefill instances. Decoding benefits mostly from inter-op parallelism.
+### Analysis for Decoding Instance
+Decoding phase is memory bound due to the load and stores of KV cache. This
+means that batching is necessary to have high GPU utilization. Systems that
+colocate prefill and decode make increasing the batch size difficult because it
+makes it harder to meet the latency goals of TTFT. Thus, it creates a tradeoff
+between TTFT and TPOT.
 
-While disaggregation addresses these problems, there are also some concerns
-that could prevent it
-- Variable prefill lengths: Prompt lengths are non-uniform and can break
-inter-op pipeline balance. The solution is to use a scheduling policy that
-balances execution time in each pipeline stage
-- Communication overhead: Transfer of KV Cache from the prefill stage to the
-decoding stage means a lot of data to be transfered. Use intra-node NVLINK for
-communication and placement algorithm ensures co-location of corresponding
-stages on the same node
-- Design tradeoffs: Disaggregation leads to more work such as batch sizing,
-parallelism type and degree, node placement, GPU resource allocation
+Even after disaggregation, the batch size of decode is limited by GPU memory
+capacity and the need to maintain the KV caches for all active requests. This
+requires parallelism and memory management techniques like Paged Attention. TP
+can be applied to decoding as well where increasing the number of GPUs reduces
+latency with diminishing returns as you increase the number of GPUs involved
+because of the communication overhead. PP can linearly scale throughput so the
+authors come to conclusion that if the TPOT SLO is important, TP is essential
+but PP is preferable to scale throughput linearly.
+
+### Practical Problems
+Disaggregating prefill and decode has non-trivial challenges involved.
+
+Variable prefill length: Prefill lengths in real life applications of LLMs vary
+which causes pipeline bubbles during PP as longer length prefills have more
+compute demand and execution time. To address this problem, the authors
+developed an algorithm that searches for the best parallelism strategy based on
+the workloads and schedules to minimize bubbles.
+
+Communication overhead: Trasnferring KV caches from prefill to decode can
+incure notable overheads. The KV cache of a single 512 token request on a 66B
+model is 1.13 GB. Modern GPU clusters have infiniband with high throughput (800
+Gbps) but in cases where this isn't available, DistServe places prefill and
+decode instances in the same cluster and relies on NVLINK.
 
 ## Method
-DistServe needs to automatically find the best way to allocate resources and
-choose parallelism strategies. The components needed to accomplish this are
-placement algorithms and runtime scheduling.
+DistServe addresses the challenges above by 
+- Discovering the best parallelism strategies for prefill and decode separately
+- The number and placement of the prefill and decoding instances 
 
-Placement for High Node-Affinity Clusters: For clusters with high speed
-interconnections like InfiniBand, perfill and decoding stages can be optimized
-separately. A simulator is used to estimate the goodput of enumerating of
-feasible parallelism configs. Once the best config is chosen, replicate the
-instances to match the traffic rate. This simulator uses analytical models to
-estimate latency. It is based on trace driven workload distributions and is
-able to simulate much faster than real world profilling and is verified to be
-within 2% of real measurements.
+The authors present two placement algorithms, one for clusters with high speed
+cross node networks and one for clusters without such infrastructure. The
+authors also devise an online scheduling algorithm that adapts to real world
+workloads.
 
-Placement for Low Node-Affinity Clusters: For clusters with limited cross node
-bandwidth, transfer of KV cache between the phases becomes costly. Intra node
-is used placement is used where there is NVLink. The model is broken into
-segments where prefill and decoding segments are on the same node. A simulator
-is used to choose the best configuration for all possible intra node
-parallelism combinations.
+### Placement for High Node-Affinity Cluster
+For clusters with Infiniband, KV cache transmission overhead across nodes is
+negligible. This means prefill and decode instances can be placed across any
+two nodes without constraints. The placement in this case is to optimize
+prefill and decode separately and then to replicate the instances to match the
+traffic rate. That being said, finding the optimal configuration is non-trivial
+as it you can't simply calculate SLO attainment as there are many variables
+like input length, output length, arrival pattern, etc. To address this, the
+authors build a simulator to estimate SLO given the arrival rate of requests,
+and the input and output length distributions. This only works under the
+assumption that historical workload patterns will continue in the future. While
+it cannot predict short term intervals, the workload pattern over longer
+timescales is more predictable. Given this simulator, the algorithm is to
+enumerate all feasible parallel configurations given the cluster capacity limit
+for both prefill and decoding instances. Then for each of thes configurations,
+the simulator finds the maximum goodput via a binary search for both prefill
+and decode configurations. This configuration is then replicated as many times
+as needed to meet the request rate. The complexity of this algorithm is
+$O(NM^2)$ where $N$ is the node limit per instance and $M$ is the number of
+GPUs per node (typically 8)
 
-Online scheduling: To schedule incoming requests, multiple optimization
-strategies were chosen
-- Load balancing: Prefill requests were routed to prefill instances with the
-shortest queue. Decoding tasks were assigned to the least loaded decoding
-instance
-- Reducing pipeline bubbles: Long prompts can cause underutilization in
-pipelines. For prefill stage, the saturation threshold or the prompt length
-that utilizes the GPU fully is profiled and multiple prompts are batched to
-meet this threshold. For decoding stage, the batch size was capped by the
-memory usage
-- KV Cache Transfer: Decoding instances pull KV caches from prefills to avoid
-bursts. This meant the prefill instances needed to temporarily buffer its KV
-cache
-- Replanning: Workload patterns may change so systems monitor for drift and re
-executes placement algorithms. This repllaning is pretty fast and can be done
-hourly
-- Preemption and Fault Tolerance: For larger prompts, want to preempt to allow
-small batches to go through. Faults in the decoding stage can cause fault
-cascades but this paper doesn't have fault tolerance mechanism
+### Simulator
+The simulator was built by analyizing the FLOPs and memory accessses for
+prefill and decoding phases. THen a latency model was used to approximate the
+inference execution time.
+
+### Placement for Low Node-Affinity Cluster
+The naive palcement for clusters without Infiniband would be to place prefill
+and decoding instances on the same node to utilize NVLINK. However, for large
+models like 175B parameters, it may not even be possible for a single pair of
+prefill and decode to be on the same node. This makes the placement for low
+node affinity clusters harder. The key insight for this is that KV cache
+transfer onlly occurs between corresponding layers of prefill and decode. This
+means that only the matching layers between the prefill and decode have to
+share the KV data. With PP, the layers of a model is grouped into stages and
+stages are split across GPUs. Each stage becomes and instance segment and the
+idea is that only the corresponding decode and prefill stages have to be
+colocated. This makes it so that KV cache transfer only happens via NVLINK
+within a node. Thus, the placement algorithm for Low Node-Affinity clusters
+enumerates the different number of PP stages and TP assignments to GPUs, then
+gets the intra node configs given the PP and TP dimension enumeration, and for
+each config simulates the goodput and chooses the configuration with the
+highest.
+
+### Online Scheduling
+DistServe uses a first come first serve scheduling policy. Requests arrive at a
+central controller and is then dispatched to prefill inseteances with the
+shortest queue for prefills. The scheduling incorporates these enhancements
+- Reducing pipeline bubbles: Requests are scheduled in a way that balances
+execution time across all batches in the pipeline. For prefill instances, the
+model and GPU is profiled to find the shortest prompt length $L_m$ needed to
+saturate the GPU and prefill batches are scheduled with a total sequence length
+close to $L_m$ by batching shorter requests together or just having requests
+that are longer than $L_m$ in the batch. For decode instances, $L_m$ is the
+largest batch size.
+- Combat burstiness: Bursty workloads can cause memory overload on the decode
+instances as prefill KV cache is transferred. To avoid this, decode instances
+"pull" KV caches, fetching them as they are needed.
+- Replanning: DistServe has periodic replanning where a workload profiler
+monitors average input and output length of requests, arrival rate, etc and
+detects if there is a significant shift in these patterns. This triggers a
+rerun of the placement algorithm
+- Preemption and fault tolerance: While DistServe does not implement things
+like preemption and fault toleration, it can be employed together with
+disaggregation. FCFS scheduling can cause of head of line blocking and
+preemptions allow blocked requests to finish earlier. Fault tolerance is not
+implemented in the paper. This is especially important because disaggregation
+introduces the risk of fault propagation where a fault in a decode instane that
+multiple prefill instances are mapped to can cripple the entire service
 
 ## Implementation
-DistServe was implemented as different components. 
-- Placement algorithm
-- Restful frontend server
+DistServe is implemented as a end to end serving system with
+- RESTful API frontend
+- Placement algorithm module
 - Orchestration layer
+- Parallel exectuion engine
+
+The simulator algorithm is implemented in the placement module. The
+orchestration layer manages prefill and decode instances for request
+dispatching, KV cache transmission, and result delivery. NCCL is used for cross
+node GPU communication and async CudaMemcpy is used for intra node
+communication. Each instance is managed by a parallel execution engine which
+uses Ray to implement GPU workers that execute the inference. It implements
+recent LLM optimizations like continuous batching, FlashAttention,
+PagedAttention.
 
 ## Evaluation
-The authors aimed to measure per-GPU goodput, SLO adherence, scalalbility,
-communication overhead, simulator accuracy, and algorithm efficiency. 4 nodes
-with 32 GPUs were used with an inter-node bandwidth of 25Gbps. LLM models used
-were OPT-13B, OPT-66B, OPT-175B with float 16 precision. OPT has multi-headed
-attention which has larger KV cache stressing the communication overhead. This
-was compared with vLLM and DeepSpeed. DistServe was able to achieve 2-4.6 times
-higher request rate than vLLM and 1.6 to 7.4 times higher than DeepSpeed with
-tighter SLOs
-
-To understand the communication overhead, the different stages of model
-execution was measured. Turns out, KV cache transfer was less than 0.1% of
-total latency with most transfers completing in 95% thanks to NVLINK.
 
 ## Discussion
 The limitations of DistServe is throughput optimized scenarios such as offline
