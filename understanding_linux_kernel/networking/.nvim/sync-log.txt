@@ -1,0 +1,49 @@
+11-03-2026 13:20:12 rsync -varz  --exclude='.*' --exclude='*.*/' --exclude='__pycache__' . ssh wbjin@c220g5-110507.wisc.cloudlab.us:/users/wbjin/networking
+11-03-2026 13:20:39 rsync -varz  --exclude='.*' --exclude='*.*/' --exclude='__pycache__' . ssh wbjin@c220g5-110507.wisc.cloudlab.us:/users/wbjin/networking
+11-03-2026 13:21:20 rsync -varz  --exclude='.*' --exclude='*.*/' --exclude='__pycache__' . ssh wbjin@c220g5-110507.wisc.cloudlab.us:/users/wbjin/networking
+11-03-2026 13:26:01 rsync -varz  --exclude='.*' --exclude='*.*/' --exclude='__pycache__' . ssh wbjin@c220g5-110507.wisc.cloudlab.us:/users/wbjin/networking
+11-03-2026 13:26:10 rsync -varz  --exclude='.*' --exclude='*.*/' --exclude='__pycache__' . ssh wbjin@c220g5-110507.wisc.cloudlab.us:/users/wbjin/networking
+11-03-2026 13:26:53 rsync -varz  --exclude='.*' --exclude='*.*/' --exclude='__pycache__' . ssh wbjin@c220g5-110507.wisc.cloudlab.us:/users/wbjin/networking
+11-03-2026 13:27:00 rsync -varz  --exclude='.*' --exclude='*.*/' --exclude='__pycache__' . ssh wbjin@c220g5-110507.wisc.cloudlab.us:/users/wbjin/networking
+11-03-2026 13:27:14 rsync -varz  --exclude='.*' --exclude='*.*/' --exclude='__pycache__' . wbjin@c220g5-110507.wisc.cloudlab.us:/users/wbjin/networking
+11-03-2026 13:27:19 rsync -varz  --exclude='.*' --exclude='*.*/' --exclude='__pycache__' . wbjin@c220g5-110507.wisc.cloudlab.us:/users/wbjin/networking
+11-03-2026 13:28:03 rsync -varz  --exclude='.*' --exclude='*.*/' --exclude='__pycache__' . wbjin@c220g5-110507.wisc.cloudlab.us:/users/wbjin/networking
+11-03-2026 13:39:34 rsync -varz  --exclude='.*' --exclude='*.*/' --exclude='__pycache__' . wbjin@c220g5-110507.wisc.cloudlab.us:/users/wbjin/networking
+11-03-2026 13:41:53 rsync -varz  --exclude='.*' --exclude='*.*/' --exclude='__pycache__' . wbjin@c220g5-110507.wisc.cloudlab.us:/users/wbjin/networking
+11-03-2026 13:42:43 rsync -varz  --exclude='.*' --exclude='*.*/' --exclude='__pycache__' . wbjin@c220g5-110507.wisc.cloudlab.us:/users/wbjin/networking
+11-03-2026 13:45:06 rsync -varz  --exclude='.*' --exclude='*.*/' --exclude='__pycache__' . wbjin@c220g5-110507.wisc.cloudlab.us:/users/wbjin/networking
+11-03-2026 14:27:06 rsync -varz  --exclude='.*' --exclude='*.*/' --exclude='__pycache__' . wbjin@c220g5-110507.wisc.cloudlab.us:/users/wbjin/networking
+11-03-2026 14:27:42 rsync -varz  --exclude='.*' --exclude='*.*/' --exclude='__pycache__' . wbjin@c220g5-110507.wisc.cloudlab.us:/users/wbjin/networking
+11-03-2026 14:28:32 rsync -varz  --exclude='.*' --exclude='*.*/' --exclude='__pycache__' . wbjin@c220g5-110507.wisc.cloudlab.us:/users/wbjin/networking
+11-03-2026 14:30:03 rsync -varz  --exclude='.*' --exclude='*.*/' --exclude='__pycache__' . wbjin@c220g5-110507.wisc.cloudlab.us:/users/wbjin/networking
+11-03-2026 14:31:24 rsync -varz  --exclude='.*' --exclude='*.*/' --exclude='__pycache__' . wbjin@c220g5-110507.wisc.cloudlab.us:/users/wbjin/networking
+11-03-2026 14:37:46 rsync -varz  --exclude='.*' --exclude='*.*/' --exclude='__pycache__' . wbjin@c220g5-110507.wisc.cloudlab.us:/users/wbjin/networking
+11-03-2026 14:38:34 rsync -varz  --exclude='.*' --exclude='*.*/' --exclude='__pycache__' . wbjin@c220g5-110507.wisc.cloudlab.us:/users/wbjin/networking
+11-03-2026 14:40:10 rsync -varz  --exclude='.*' --exclude='*.*/' --exclude='__pycache__' . wbjin@c220g5-110507.wisc.cloudlab.us:/users/wbjin/networking
+11-03-2026 16:58:43 rsync -varz wbjin@c220g5-110507.wisc.cloudlab.us:/users/wbjin/networking .
+11-03-2026 16:58:53 rsync -varz wbjin@c220g5-110507.wisc.cloudlab.us:/users/wbjin/networking .
+12-03-2026 10:20:18 rsync -varz  --exclude='.*' --exclude='*.*/' --exclude='__pycache__' . wbjin@c220g2-011116.wisc.cloudlab.us:/users/wbjin/networking
+12-03-2026 10:22:29 rsync -varz wbjin@c220g2-011116.wisc.cloudlab.us:/users/wbjin/networking .
+14-03-2026 07:59:54 rsync -varz  --exclude='.*' --exclude='*.*/' --exclude='__pycache__' . wbjin@c220g2-011116.wisc.cloudlab.us:/users/wbjin/networking
+14-03-2026 08:13:11 rsync -varz  --exclude='.*' --exclude='*.*/' --exclude='__pycache__' . wbjin@c220g2-011116.wisc.cloudlab.us:/users/wbjin/networking
+14-03-2026 08:14:00 rsync -varz  --exclude='.*' --exclude='*.*/' --exclude='__pycache__' . wbjin@c220g2-011116.wisc.cloudlab.us:/users/wbjin/networking
+14-03-2026 08:20:17 rsync -varz  --exclude='.*' --exclude='*.*/' --exclude='__pycache__' . wbjin@c220g2-011116.wisc.cloudlab.us:/users/wbjin/networking
+14-03-2026 08:22:00 rsync -varz  --exclude='.*' --exclude='*.*/' --exclude='__pycache__' . wbjin@c220g2-011116.wisc.cloudlab.us:/users/wbjin/networking
+14-03-2026 08:22:37 rsync -varz  --exclude='.*' --exclude='*.*/' --exclude='__pycache__' . wbjin@c220g2-011116.wisc.cloudlab.us:/users/wbjin/networking
+14-03-2026 08:22:52 rsync -varz  --exclude='.*' --exclude='*.*/' --exclude='__pycache__' . wbjin@c220g2-011116.wisc.cloudlab.us:/users/wbjin/networking
+14-03-2026 08:26:03 rsync -varz  --exclude='.*' --exclude='*.*/' --exclude='__pycache__' . wbjin@c220g2-011116.wisc.cloudlab.us:/users/wbjin/networking
+14-03-2026 08:26:47 rsync -varz  --exclude='.*' --exclude='*.*/' --exclude='__pycache__' . wbjin@c220g2-011116.wisc.cloudlab.us:/users/wbjin/networking
+14-03-2026 08:42:13 rsync -varz  --exclude='.*' --exclude='*.*/' --exclude='__pycache__' . wbjin@c220g2-011116.wisc.cloudlab.us:/users/wbjin/networking
+14-03-2026 08:46:40 rsync -varz  --exclude='.*' --exclude='*.*/' --exclude='__pycache__' . wbjin@c220g2-011116.wisc.cloudlab.us:/users/wbjin/networking
+14-03-2026 08:48:17 rsync -varz  --exclude='.*' --exclude='*.*/' --exclude='__pycache__' . wbjin@c220g2-011116.wisc.cloudlab.us:/users/wbjin/networking
+14-03-2026 08:53:49 rsync -varz  --exclude='.*' --exclude='*.*/' --exclude='__pycache__' . wbjin@c220g2-011116.wisc.cloudlab.us:/users/wbjin/networking
+14-03-2026 08:54:29 rsync -varz  --exclude='.*' --exclude='*.*/' --exclude='__pycache__' . wbjin@c220g2-011116.wisc.cloudlab.us:/users/wbjin/networking
+14-03-2026 08:57:23 rsync -varz  --exclude='.*' --exclude='*.*/' --exclude='__pycache__' . wbjin@c220g2-011116.wisc.cloudlab.us:/users/wbjin/networking
+14-03-2026 08:59:02 rsync -varz  --exclude='.*' --exclude='*.*/' --exclude='__pycache__' . wbjin@c220g2-011116.wisc.cloudlab.us:/users/wbjin/networking
+14-03-2026 09:01:35 rsync -varz  --exclude='.*' --exclude='*.*/' --exclude='__pycache__' . wbjin@c220g2-011116.wisc.cloudlab.us:/users/wbjin/networking
+14-03-2026 09:03:27 rsync -varz  --exclude='.*' --exclude='*.*/' --exclude='__pycache__' . wbjin@c220g2-011116.wisc.cloudlab.us:/users/wbjin/networking
+14-03-2026 18:13:40 rsync -varz  --exclude='.*' --exclude='*.*/' --exclude='__pycache__' . wbjin@c220g2-011116.wisc.cloudlab.us:/users/wbjin/networking
+16-03-2026 16:45:49 rsync -varz  --exclude='.*' --exclude='*.*/' --exclude='__pycache__' . wbjin@c220g2-011116.wisc.cloudlab.us:/users/wbjin/networking
+16-03-2026 17:00:25 rsync -varz  --exclude='.*' --exclude='*.*/' --exclude='__pycache__' . wbjin@c220g2-011116.wisc.cloudlab.us:/users/wbjin/networking
+16-03-2026 17:00:31 rsync -varz  --exclude='.*' --exclude='*.*/' --exclude='__pycache__' . wbjin@c220g2-011116.wisc.cloudlab.us:/users/wbjin/networking
+16-03-2026 17:00:47 rsync -varz  --exclude='.*' --exclude='*.*/' --exclude='__pycache__' . wbjin@c220g2-011116.wisc.cloudlab.us:/users/wbjin/networking

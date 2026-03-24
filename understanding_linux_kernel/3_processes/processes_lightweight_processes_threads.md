@@ -8,4 +8,3 @@ applications. In the past, threading was done in user space the kernel treated
 multiple user level threads as one thread. Lightweight processes share the same
 resource like address space, file descriptors, etc. Linux uses something called
 a thread group to describe a set of lightweight processes that act as a whole.
-

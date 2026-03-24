@@ -57,3 +57,9 @@ saving and restoring of the existing user space register values. However, the
 saving and restoring has considerable overhead as to negate the speedup gained
 from using special arithmetic units so it is only used selectively in places
 like cheksum functins.
+
+TSS is a hardware structure that contains task's state such as registers, stack
+pointers, and instruction pointer that is needed for context switching. In
+Linux, it is primarily used for stack switching from user mode to kernel mode
+and the kernel stack on interrupts as context switching is done in software
+instead of hardware.

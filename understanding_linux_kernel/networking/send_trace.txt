@@ -1,0 +1,257 @@
+# tracer: function_graph
+#
+# CPU  DURATION                  FUNCTION CALLS
+# |     |   |                     |   |   |   |
+ 39)               |  __sys_sendto() {
+ 39)               |    sockfd_lookup_light() {
+ 39)   0.618 us    |      __fdget();
+ 39)   1.520 us    |    }
+ 39)               |    move_addr_to_kernel() {
+ 39)               |      __check_object_size() {
+ 39)               |        __check_object_size.part.0() {
+ 39)   0.282 us    |          check_stack_object();
+ 39)   1.102 us    |        }
+ 39)   1.730 us    |      }
+ 39)   2.551 us    |    }
+ 39)               |    security_socket_sendmsg() {
+ 39)               |      apparmor_socket_sendmsg() {
+ 39)               |        aa_inet_msg_perm() {
+ 39)   0.424 us    |          __cond_resched();
+ 39)   1.103 us    |        }
+ 39)   1.642 us    |      }
+ 39)   2.421 us    |    }
+ 39)               |    inet_sendmsg() {
+ 39)               |      inet_send_prepare() {
+ 39)               |        inet_autobind() {
+ 39)               |          lock_sock_nested() {
+ 39)   0.237 us    |            __cond_resched();
+ 39)   0.236 us    |            _raw_spin_lock_bh();
+ 39)               |            _raw_spin_unlock_bh() {
+ 39)   0.273 us    |              __local_bh_enable_ip();
+ 39)   0.779 us    |            }
+ 39)   2.162 us    |          }
+ 39)               |          udp_v4_get_port() {
+ 39)               |            udp_lib_get_port() {
+ 39)   0.235 us    |              inet_sk_get_local_port_range();
+ 39)   0.322 us    |              get_random_u32();
+ 39)   0.982 us    |              _raw_spin_lock_bh();
+ 39)               |              udp_lib_lport_inuse() {
+ 39)               |                sock_i_uid() {
+ 39)   0.239 us    |                  _raw_read_lock_bh();
+ 39)               |                  _raw_read_unlock_bh() {
+ 39)   0.254 us    |                    __local_bh_enable_ip();
+ 39)   0.736 us    |                  }
+ 39)   1.710 us    |                }
+ 39)   2.222 us    |              }
+ 39)   0.614 us    |              _raw_spin_lock();
+ 39)   0.247 us    |              _raw_spin_unlock();
+ 39)               |              _raw_spin_unlock_bh() {
+ 39)   0.257 us    |                __local_bh_enable_ip();
+ 39)   0.706 us    |              }
+ 39)   8.134 us    |            }
+ 39)   8.625 us    |          }
+ 39)               |          release_sock() {
+ 39)   0.247 us    |            _raw_spin_lock_bh();
+ 39)               |            ip4_datagram_release_cb() {
+ 39)   0.239 us    |              __rcu_read_lock();
+ 39)   0.241 us    |              __rcu_read_unlock();
+ 39)   1.178 us    |            }
+ 39)               |            _raw_spin_unlock_bh() {
+ 39)   0.237 us    |              __local_bh_enable_ip();
+ 39)   0.677 us    |            }
+ 39)   3.060 us    |          }
+ 39) + 15.017 us   |        }
+ 39) + 15.527 us   |      }
+ 39)               |      udp_sendmsg() {
+ 39)   0.247 us    |        __rcu_read_lock();
+ 39)   0.241 us    |        __rcu_read_unlock();
+ 39)   0.262 us    |        security_sk_classify_flow();
+ 39)               |        ip_route_output_flow() {
+ 39)   0.254 us    |          __rcu_read_lock();
+ 39)               |          ip_route_output_key_hash_rcu() {
+ 39)   0.237 us    |            __rcu_read_lock();
+ 39)               |            fib_table_lookup() {
+ 39)   1.405 us    |              fib_lookup_good_nhc();
+ 39)   4.142 us    |            }
+ 39)   0.254 us    |            __rcu_read_unlock();
+ 39)               |            fib_select_path() {
+ 39)   0.770 us    |              dev_get_by_index_rcu();
+ 39)   0.248 us    |              fib_result_prefsrc();
+ 39)   1.824 us    |            }
+ 39)               |            __mkroute_output() {
+ 39)   0.262 us    |              find_exception();
+ 39)   0.250 us    |              __rcu_read_lock();
+ 39)   0.242 us    |              __rcu_read_unlock();
+ 39)   3.303 us    |            }
+ 39) + 11.450 us   |          }
+ 39)   0.402 us    |          __rcu_read_unlock();
+ 39)               |          xfrm_lookup_route() {
+ 39)   0.708 us    |            xfrm_lookup_with_ifid();
+ 39)   1.477 us    |          }
+ 39) + 15.008 us   |        }
+ 39)               |        ip_make_skb() {
+ 39)               |          ip_setup_cork.constprop.0() {
+ 39)               |            ipv4_mtu() {
+ 39)   0.247 us    |              __rcu_read_lock();
+ 39)   0.247 us    |              __rcu_read_unlock();
+ 39)   1.701 us    |            }
+ 39)   2.580 us    |          }
+ 39)               |          __ip_append_data() {
+ 39)               |            sock_alloc_send_pskb() {
+ 39)               |              alloc_skb_with_frags() {
+ 39)               |                __alloc_skb() {
+ 39)               |                  kmem_cache_alloc_node() {
+ 39)   0.264 us    |                    __cond_resched();
+ 39)   0.251 us    |                    should_failslab.constprop.0();
+ 39)   1.684 us    |                  }
+ 39)               |                  kmalloc_reserve() {
+ 39)               |                    kmem_cache_alloc_node() {
+ 39)   0.236 us    |                      __cond_resched();
+ 39)   0.240 us    |                      should_failslab.constprop.0();
+ 39)   1.643 us    |                    }
+ 39)   2.342 us    |                  }
+ 39)   0.252 us    |                  __build_skb_around();
+ 39)   5.484 us    |                }
+ 39)   5.981 us    |              }
+ 39)   0.274 us    |              skb_set_owner_w();
+ 39)   7.074 us    |            }
+ 39)   0.243 us    |            skb_put();
+ 39)               |            ip_generic_getfrag() {
+ 39)               |              __check_object_size() {
+ 39)               |                __check_object_size.part.0() {
+ 39)   0.263 us    |                  check_stack_object();
+ 39)   0.263 us    |                  is_vmalloc_addr();
+ 39)   0.431 us    |                  __virt_addr_valid();
+ 39)   0.429 us    |                  __check_heap_object();
+ 39)   2.973 us    |                }
+ 39)   3.454 us    |              }
+ 39)   4.124 us    |            }
+ 39) + 13.513 us   |          }
+ 39)               |          __ip_make_skb() {
+ 39)               |            ipv4_mtu() {
+ 39)   0.245 us    |              __rcu_read_lock();
+ 39)   0.244 us    |              __rcu_read_unlock();
+ 39)   1.149 us    |            }
+ 39)   0.247 us    |            __rcu_read_lock();
+ 39)   0.267 us    |            __rcu_read_unlock();
+ 39)               |            __ip_select_ident() {
+ 39)               |              __get_random_u32_below() {
+ 39)   0.270 us    |                get_random_u32();
+ 39)   0.759 us    |              }
+ 39)   2.295 us    |            }
+ 39)   0.273 us    |            kfree();
+ 39)   0.257 us    |            dst_release();
+ 39)   6.525 us    |          }
+ 39) + 23.629 us   |        }
+ 39)               |        udp_send_skb() {
+ 39)   0.264 us    |          udp4_hwcsum();
+ 39)               |          ip_send_skb() {
+ 39)               |            __ip_local_out() {
+ 39)   0.239 us    |              ip_send_check();
+ 39)   0.879 us    |            }
+ 39)               |            ip_output() {
+ 39)   0.242 us    |              __rcu_read_lock();
+ 39)               |              nf_hook_slow() {
+ 39)   0.272 us    |                apparmor_ip_postroute();
+ 39)   0.809 us    |              }
+ 39)   0.243 us    |              __rcu_read_unlock();
+ 39)               |              ip_finish_output() {
+ 39)               |                __ip_finish_output() {
+ 39)   0.234 us    |                  __rcu_read_lock();
+ 39)   0.243 us    |                  __rcu_read_unlock();
+ 39)               |                  ip_finish_output2() {
+ 39)   0.485 us    |                    __rcu_read_lock();
+ 39)               |                    __dev_queue_xmit() {
+ 39)   0.401 us    |                      qdisc_pkt_len_init();
+ 39)   0.524 us    |                      dst_release();
+ 39)               |                      netdev_core_pick_tx() {
+ 39)               |                        netdev_pick_tx() {
+ 39)               |                          __skb_get_hash() {
+ 39)               |                            __skb_flow_dissect() {
+ 39)   0.433 us    |                              __rcu_read_lock();
+ 39)   0.623 us    |                              __rcu_read_unlock();
+ 39)   0.264 us    |                              __skb_flow_get_ports();
+ 39)   3.748 us    |                            }
+ 39)   4.824 us    |                          }
+ 39)   5.476 us    |                        }
+ 39)   6.267 us    |                      }
+ 39)   0.433 us    |                      _raw_spin_lock();
+ 39)               |                      sch_direct_xmit() {
+ 39)   0.236 us    |                        _raw_spin_unlock();
+ 39)               |                        validate_xmit_skb_list() {
+ 39)               |                          validate_xmit_skb() {
+ 39)               |                            netif_skb_features() {
+ 39)   0.251 us    |                              igb_features_check [igb]();
+ 39)   0.266 us    |                              skb_network_protocol();
+ 39)   1.396 us    |                            }
+ 39)   0.264 us    |                            skb_csum_hwoffload_help();
+ 39)   0.264 us    |                            validate_xmit_xfrm();
+ 39)   3.003 us    |                          }
+ 39)   3.473 us    |                        }
+ 39)   0.243 us    |                        _raw_spin_lock();
+ 39)               |                        dev_hard_start_xmit() {
+ 39)               |                          igb_xmit_frame [igb]() {
+ 39)               |                            igb_xmit_frame_ring [igb]() {
+ 39)   0.256 us    |                              igb_tso [igb]();
+ 39)   0.425 us    |                              igb_tx_ctxtdesc [igb]();
+ 39)               |                              igb_tx_map [igb]() {
+ 39)   0.250 us    |                                is_vmalloc_addr();
+ 39)               |                                dma_map_page_attrs() {
+ 39)               |                                  iommu_dma_map_page() {
+ 39)   0.501 us    |                                    iommu_get_dma_domain();
+ 39)               |                                    __iommu_dma_map() {
+ 39)   0.243 us    |                                      iommu_get_dma_domain();
+ 39)               |                                      iommu_dma_alloc_iova() {
+ 39)               |                                        alloc_iova_fast() {
+ 39)   0.477 us    |                                          _raw_spin_lock_irqsave();
+ 39)   0.262 us    |                                          _raw_spin_unlock_irqrestore();
+ 39)   1.866 us    |                                        }
+ 39)   2.412 us    |                                      }
+ 39)               |                                      iommu_map() {
+ 39)               |                                        __iommu_map() {
+ 39)   0.253 us    |                                          iommu_pgsize();
+ 39)               |                                          intel_iommu_map_pages() {
+ 39)               |                                            __domain_mapping() {
+ 39)   1.053 us    |                                              pfn_to_dma_pte();
+ 39)   0.552 us    |                                              clflush_cache_range();
+ 39)   2.748 us    |                                            }
+ 39)   3.369 us    |                                          }
+ 39)   4.449 us    |                                        }
+ 39)               |                                        intel_iommu_iotlb_sync_map() {
+ 39)   0.244 us    |                                          __rcu_read_lock();
+ 39)   0.267 us    |                                          __rcu_read_unlock();
+ 39)   0.322 us    |                                          iommu_flush_write_buffer();
+ 39)   0.247 us    |                                          __rcu_read_lock();
+ 39)   0.396 us    |                                          __rcu_read_unlock();
+ 39)   4.060 us    |                                        }
+ 39)   9.414 us    |                                      }
+ 39) + 13.143 us   |                                    }
+ 39) + 14.952 us   |                                  }
+ 39) + 15.919 us   |                                }
+ 39)   0.392 us    |                                skb_clone_tx_timestamp();
+ 39) + 18.031 us   |                              }
+ 39) + 20.748 us   |                            }
+ 39) + 21.595 us   |                          }
+ 39) + 22.471 us   |                        }
+ 39)   0.242 us    |                        _raw_spin_unlock();
+ 39)   0.244 us    |                        _raw_spin_lock();
+ 39) + 28.824 us   |                      }
+ 39)               |                      __qdisc_run() {
+ 39)               |                        dequeue_skb() {
+ 39)   0.436 us    |                          fq_codel_dequeue [sch_fq_codel]();
+ 39)   1.416 us    |                        }
+ 39)   2.061 us    |                      }
+ 39)   0.260 us    |                      _raw_spin_unlock();
+ 39)   0.288 us    |                      __local_bh_enable_ip();
+ 39) + 42.576 us   |                    }
+ 39)   0.238 us    |                    __rcu_read_unlock();
+ 39) + 45.188 us   |                  }
+ 39) + 46.951 us   |                }
+ 39) + 47.606 us   |              }
+ 39) + 50.380 us   |            }
+ 39) + 52.171 us   |          }
+ 39) + 53.634 us   |        }
+ 39)   0.258 us    |        dst_release();
+ 39) + 96.073 us   |      }
+ 39) ! 112.378 us  |    }
+ 39) ! 121.848 us  |  }
